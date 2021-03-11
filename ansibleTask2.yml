@@ -1,0 +1,39 @@
+- hosts: localhost
+  vars_files:
+          - vault.yml
+  tasks:
+   - name: "launching ec2 instance on AWS"
+     ec2:
+      key_name: "mykey"
+      instance_type: t2.micro
+      image: "ami-0a9d27a9f4f5c0efc"
+      wait: yes
+      count: 1
+      instance_tags:
+              Name: "myAnsibleOS"
+      state: present
+      region: "ap-south-1"
+      group_id: "sg-0115c41a0b3c39bda"
+      aws_access_key: "{{ accesskey }}"
+      aws_secret_key: "{{ secretkey }}"
+     register: ec2
+
+   - name: "Add new Instance to Host group"
+     add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: webserver
+     loop: "{{ ec2.instances }}"
+
+   - name: "Wait for SSH in Instance"
+     wait_for:
+             host: "{{ item.public_dns_name }}"
+             port: 22
+             state: started
+     loop: "{{ ec2.instances }}"
+
+- hosts: webserver
+  gather_facts: yes
+  tasks:
+   - name: running role
+     include_role:
+             name: httpdserver
