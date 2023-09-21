@@ -9,7 +9,7 @@
 
  - name: "copy code from GitHub"
    get_url:
-       url: https://raw.githubusercontent.com/Shashikant17/ansible_task_for_httpdserver/main/index.php
+       url: https://raw.githubusercontent.com/lclayton1977/ansible_task_for_httpdserver/main/index.php
        dest: "/var/www/html/index.php"
 
  - name: "Start httpd services"
